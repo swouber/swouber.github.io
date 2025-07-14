@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Swouber Installation</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+    nav {
+      background: white;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    nav img {
+      height: 36px;
+    }
+    nav a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      margin-left: 20px;
+    }
+    #content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    /* Simple markdown styles */
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: bold;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    p {
+      margin-bottom: 1em;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      overflow-x: auto;
+    }
+    code {
+      background: #eee;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    blockquote {
+      border-left: 4px solid #ccc;
+      margin-left: 0;
+      padding-left: 10px;
+      color: #666;
+      font-style: italic;
+    }
+    a {
+      color: #0366d6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <img src="https://github.com/swouber/swouber/blob/main/logo.png?raw=true" alt="Swouber Logo" />
+    <a href="../../index.html">Home</a>
+    <a href="installation.html">Installation</a>
+  </nav>
+  <div id="content">Loading installation guide...</div>
+
+  <script>
+    // Minimal markdown to HTML parser (basic support for headings, paragraphs, code blocks, links, blockquotes)
+    function parseMarkdown(md) {
+      // Escape HTML special chars
+      md = md.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+      // Code blocks
+      md = md.replace(/```([\s\S]*?)```/g, (m, code) => {
+        return `<pre><code>${code.trim()}</code></pre>`;
+      });
+
+      // Inline code
+      md = md.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+
+      // Headings (### to #)
+      for(let i = 6; i >= 1; i--) {
+        let hashes = '#'.repeat(i);
+        let regex = new RegExp(`^${hashes} (.*)$`, 'gm');
+        md = md.replace(regex, `<h${i}>$1</h${i}>`);
+      }
+
+      // Blockquotes
+      md = md.replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>');
+
+      // Links [text](url)
+      md = md.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+      // Paragraphs (split by double line breaks)
+      let paragraphs = md.split(/\n{2,}/);
+      paragraphs = paragraphs.map(p => {
+        if (p.match(/^<\/?(h\d|pre|blockquote|ul|ol|li|code|a|p|img|table|tr|td|th)/)) {
+          return p; // if already html tag, don't wrap
+        }
+        return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+      });
+
+      return paragraphs.join('\n');
+    }
+
+    // Fetch raw markdown from GitHub
+    fetch('https://raw.githubusercontent.com/swouber/docs/main/installation/README.md')
+      .then(response => {
+        if(!response.ok) throw new Error('Network error');
+        return response.text();
+      })
+      .then(text => {
+        document.getElementById('content').innerHTML = parseMarkdown(text);
+      })
+      .catch(e => {
+        document.getElementById('content').innerHTML = `<p>Error loading installation guide: ${e.message}</p>`;
+      });
+  </script>
+</body>
+</html>

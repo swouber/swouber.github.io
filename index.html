@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Swouber</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; line-height: 1.6; }
+    nav {
+      background: white;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    nav img {
+      height: 36px;
+    }
+    nav a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      margin-left: 20px;
+    }
+    main {
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    /* Simple markdown styles */
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: bold;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    p {
+      margin-bottom: 1em;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      overflow-x: auto;
+      border-radius: 4px;
+    }
+    code {
+      background: #eee;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-family: Consolas, monospace;
+    }
+    blockquote {
+      border-left: 4px solid #ccc;
+      margin-left: 0;
+      padding-left: 10px;
+      color: #666;
+      font-style: italic;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 2em 0;
+    }
+    a {
+      color: #0366d6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <img src="https://github.com/swouber/swouber/blob/main/logo.png?raw=true" alt="Swouber Logo" />
+    <a href="index.html">Home</a>
+    <a href="docs/installation/installation.html">Installation</a>
+  </nav>
+  <main id="content">Loading description...</main>
+
+  <script>
+    // Minimal markdown to HTML parser (supports headings, paragraphs, code blocks, inline code, blockquotes, links, hr)
+    function parseMarkdown(md) {
+      md = md.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+      // Horizontal rules
+      md = md.replace(/^---$/gm, '<hr>');
+
+      // Code blocks ```sbr or ```
+      md = md.replace(/```(sbr)?\n([\s\S]*?)```/g, (m, lang, code) => {
+        return `<pre><code>${code.trim()}</code></pre>`;
+      });
+
+      // Inline code
+      md = md.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+
+      // Headings # to ######
+      for(let i = 6; i >= 1; i--) {
+        let hashes = '#'.repeat(i);
+        let regex = new RegExp(`^${hashes} (.*)$`, 'gm');
+        md = md.replace(regex, `<h${i}>$1</h${i}>`);
+      }
+
+      // Blockquotes
+      md = md.replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>');
+
+      // Links [text](url)
+      md = md.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+      // Paragraphs separated by double newlines, ignoring lines that start with html tags
+      let paragraphs = md.split(/\n{2,}/);
+      paragraphs = paragraphs.map(p => {
+        if (p.match(/^<\/?(h\d|pre|blockquote|ul|ol|li|code|a|p|img|table|tr|td|th|hr)/)) {
+          return p;
+        }
+        return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+      });
+
+      return paragraphs.join('\n');
+    }
+
+    const swouberMarkdown = `
+# SWOUBER
+Swouber is a free open source programming language based on python it acts like assembly and pythom combined it also supports pip and other python package managers
+
+---
+
+## Example Swouber Script (\`example.swou\`):
+
+\`\`\`sbr
+md math
+
+fctn greet(name):
+    print("Hello", name)
+
+greet("Swouber")
+print(math.sqrt(25))
+\`\`\`
+Output:
+
+\`\`\`
+Hello Swouber
+5.0
+\`\`\`
+
+Swouber other module integration
+
+\`\`\`
+md pygame
+md sys
+
+fctn main():
+    pygame.init()
+    screen = pygame.display.set_mode((640, 480))
+    pygame.display.set_caption("Swouber Pygame Example")
+    
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        
+        screen.fill((30, 30, 30))
+        
+        font = pygame.font.Font(None, 36)
+        text = font.render("Hello from Swouber + Pygame!", True, (200, 200, 200))
+        screen.blit(text, (50, 220))
+        
+        pygame.display.flip()
+    
+    pygame.quit()
+    sys.exit()
+\`\`\`
+
+Make sure to install the module  with
+
+\`\`\`
+pip install pygame
+\`\`\`
+    `;
+
+    document.getElementById('content').innerHTML = parseMarkdown(swouberMarkdown);
+  </script>
+</body>
+</html>
